@@ -78,16 +78,30 @@ def tokenize(line):
   return Number, Operator, Priority
 
 
+def maxpriority(Priority, count):
+  i = 1
+  imax = 0
+  while len(Priority) - count > i:
+    if Priority[imax] < int(Priority[i]):
+      imax = i
+    i += 1
+  return imax, Priority, count
+
+def organize(Number, Operator, Priority, imax, count):
+  j = imax + 1
+  while j < len(Priority) - count:
+    Number[j] = Number[j + 1]
+    Operator[j - 1] = Operator[j]
+    Priority[j - 1] = Priority[j]
+    j += 1
+  return Number, Operator, Priority, count
+
+
 def evaluate(Number, Operator, Priority):
   answer = 0
   count = 0
   while len(Operator) - count > 0:
-    imax = 0
-    i = 1
-    while len(Priority) - count > i: #最も優先度の高い演算子を見つける
-      if Priority[imax] < int(Priority[i]):
-        imax = i
-      i += 1
+    (imax, Priority, count) = maxpriority(Priority, count) #最も優先度の高い演算子を見つける
     if Operator[imax]['type'] == 'PLUS':
       Number[imax] += Number[imax + 1]
     elif Operator[imax]['type'] == 'MINUS':
@@ -96,16 +110,12 @@ def evaluate(Number, Operator, Priority):
       Number[imax] *= Number[imax + 1]
     elif Operator[imax]['type'] == 'DEVIDED':
       Number[imax] /= Number[imax + 1]
-    j = imax + 1
-    while j < len(Priority) - count:　#数字、演算子を１つずつずらす
-      Number[j] = Number[j + 1]
-      Operator[j - 1] = Operator[j]
-      Priority[j - 1] = Priority[j]
-      j += 1
+    (Number, Operator, Priority, count) = organize(Number, Operator, Priority, imax, count) #数字、演算子を１つずつずらし、配列を整理
     count += 1
   answer = Number[imax]   
   return answer  
-   
+
+
 def test(line):
   (Number, Operator, Priority) = tokenize(line)
   actualAnswer = evaluate(Number, Operator, Priority)
