@@ -63,17 +63,17 @@ def tokenize(line):
   return tokens, priorities
 
 def processing(index, tokens, priorities):
-    while priorities[index + 1] == 1:
-        if(tokens[index + 2]['type'] == 'NUMBER'):
-            if tokens[index + 1]['type'] == 'MULTI':
-                tokens[index + 2]['number'] *= tokens[index]['number']
-            else:
-                tokens[index + 2]['number'] = tokens[index]['number'] / tokens[index + 2]['number']
-        else:
-            print('ERROR')
-            exit(1)
-        index += 2
-    return index, tokens
+  while priorities[index + 1] == 1:
+    if(tokens[index + 2]['type'] == 'NUMBER'):
+      if tokens[index + 1]['type'] == 'MULTI':
+        tokens[index + 2]['number'] *= tokens[index]['number']
+      else:
+        tokens[index + 2]['number'] = tokens[index]['number'] / tokens[index + 2]['number']
+    else:
+      print('ERROR')
+      exit(1)
+    index += 2
+  return index, tokens
     
 def evaluate(tokens, priorities):
   answer = 0
