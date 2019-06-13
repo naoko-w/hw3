@@ -1,4 +1,4 @@
-def readNumber(line, index):
+def readNumber(line, index): 
   number = 0
   while index < len(line) and line[index].isdigit():
     number = number * 10 + int(line[index])
@@ -14,27 +14,27 @@ def readNumber(line, index):
 
 
 def readPlus(line, index, p):
-  operater = {'type': 'PLUS'}
+  operator = {'type': 'PLUS'}
   priority = p + 1
-  return operater, index + 1, priority
+  return operator, index + 1, priority
 
 
 def readMinus(line, index, p):
-  operater = {'type': 'MINUS'}
+  operator = {'type': 'MINUS'}
   priority = p + 1
-  return operater, index + 1, priority
+  return operator, index + 1, priority
 
 
 def readMultipled(line, index, p):
-  operater = {'type': 'MULTI'}
+  operator = {'type': 'MULTI'}
   priority = p + 2
-  return operater, index + 1, priority
+  return operator, index + 1, priority
 
 
 def readDevided(line, index, p):
-  operater = {'type': 'DEVIDED'}
+  operator = {'type': 'DEVIDED'}
   priority = p + 2
-  return operater, index + 1, priority
+  return operator, index + 1, priority
 
 
 def readParentheses1(line, index, p):
@@ -50,24 +50,24 @@ def readParentheses2(line, index, p):
 def tokenize(line):
   Priority = []
   Number = []
-  Operater = []
+  Operator = []
   index = 0
   p = 0
   while index < len(line):
     if line[index].isdigit():
       (number, index) = readNumber(line, index)
-      Number.append(number)
+      Number.append(number) #数字は配列Numberに入れる
     elif line[index] == '+' or line[index] =='-' or line[index] =='*' or line[index] == '/':
         if line[index] == '+':
-            (operater, index, priority) = readPlus(line, index, p)
+            (operator, index, priority) = readPlus(line, index, p)
         elif line[index] == '-':
-            (operater, index, priority) = readMinus(line, index, p)
+            (operator, index, priority) = readMinus(line, index, p)
         elif line[index] == '*':
-            (operater, index, priority) = readMultipled(line, index, p)
+            (operator, index, priority) = readMultipled(line, index, p)
         elif line[index] == '/':
-            (operater, index, priority) = readDevided(line, index, p)
-        Priority.append(priority)
-        Operater.append(operater)
+            (operator, index, priority) = readDevided(line, index, p)
+        Priority.append(priority) #演算子の優先度を配列Priorityに入れる
+        Operator.append(operator) #演算子は配列Operatorに入れる
     elif line[index] == '(':
       (index, p) = readParentheses1(line, index, p)
     elif line[index] == ')':
@@ -75,34 +75,31 @@ def tokenize(line):
     else:
       print('Invalid character found: ' + line[index])
       exit(1)
-  return Number, Operater, Priority
+  return Number, Operator, Priority
 
 
-def evaluate(Number, Operater, Priority):
+def evaluate(Number, Operator, Priority):
   answer = 0
   count = 0
-  Operater.insert(len(Operater)+1, "+") #dammy
-  Priority.insert(len(Priority)+1, "0") #dammy
-  Number.insert(len(Number)+1, "0") #dammy
-  while len(Operater) - count > 1: #insert分だけ+1
+  while len(Operator) - count > 0:
     imax = 0
     i = 1
-    while len(Priority) - count > i + 1: #insert分だけ+1
+    while len(Priority) - count > i: #最も優先度の高い演算子を見つける
       if Priority[imax] < int(Priority[i]):
         imax = i
       i += 1
-    if Operater[imax]['type'] == 'PLUS':
+    if Operator[imax]['type'] == 'PLUS':
       Number[imax] += Number[imax + 1]
-    elif Operater[imax]['type'] == 'MINUS':
+    elif Operator[imax]['type'] == 'MINUS':
       Number[imax] -= Number[imax + 1]
-    elif Operater[imax]['type'] == 'MULTI':
+    elif Operator[imax]['type'] == 'MULTI':
       Number[imax] *= Number[imax + 1]
-    elif Operater[imax]['type'] == 'DEVIDED':
+    elif Operator[imax]['type'] == 'DEVIDED':
       Number[imax] /= Number[imax + 1]
     j = imax + 1
-    while j < len(Priority):
+    while j < len(Priority) - count:　#数字、演算子を１つずつずらす
       Number[j] = Number[j + 1]
-      Operater[j - 1] = Operater[j]
+      Operator[j - 1] = Operator[j]
       Priority[j - 1] = Priority[j]
       j += 1
     count += 1
@@ -110,8 +107,8 @@ def evaluate(Number, Operater, Priority):
   return answer  
    
 def test(line):
-  (Number, Operater, Priority) = tokenize(line)
-  actualAnswer = evaluate(Number, Operater, Priority)
+  (Number, Operator, Priority) = tokenize(line)
+  actualAnswer = evaluate(Number, Operator, Priority)
   expectedAnswer = eval(line)
   if abs(actualAnswer - expectedAnswer) < 1e-8:
     print("PASS! (%s = %f)" % (line, expectedAnswer))
@@ -139,6 +136,6 @@ runTest()
 while True:
   print('> ', end="")
   line = input()
-  (Number, Operater, Priority) = tokenize(line)
-  answer = evaluate(Number, Operater, Priority)
+  (Number, Operator, Priority) = tokenize(line) #入力された文字列を解析し、Number、Operaterに振り分け
+  answer = evaluate(Number, Operator, Priority) #Priorityにて計算優先度を参照しながら計算
   print("answer = %f\n" % answer)
